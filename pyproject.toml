@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "erm"
+version = "0.1.0"
+description = ""
+authors = ["Ernest DONG <dongcy2000@outlook.com>"]
+
+[tool.poetry.dependencies]
+python = "3.10"
+pandas = "^1.4.1"
+seaborn = "^0.11.2"
+scipy = "1.8.0"
+scikit-learn = "^1.0.2"
+torch = "^1.11.0"
+statsmodels = "^0.13.2"
+
+[tool.poetry.dev-dependencies]
+# ipykernel="^6.9.1"
+ipykernel = "^6.9.1"
+gnureadline = "^8.0.0"
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

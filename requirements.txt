@@ -1,0 +1,5 @@
+ipykernel==6.9.1
+pip==22.0.3
+scikit-learn==1.0.2
+seaborn==0.11.2
+torch==1.11.0
