@@ -384,11 +384,6 @@ class CNN(nn.Module):
         return self.fc(out)
         \end{minted}
         \column{0.3\linewidth}
-        \begin{minted}{python}
-net = CNN()
-optimizer = torch.optim.Adamax(net.parameters(),lr=0.0025)
-loss_func = torch.nn.L1Loss()
-        \end{minted}
         \begin{table}
             \caption{CNN 结果}
             \begin{tabular}{ll}
@@ -404,12 +399,60 @@ loss_func = torch.nn.L1Loss()
 \subsubsection{RNN}
 \begin{frame}
     \frametitle{“记忆”}
+    在一些和时序有关的应用场景中，需要一定的记忆功能。比如翻译末尾的句子可能会参考到开头的语句。
+
+    RNN 利用权值共享、自我更新，实现了类似“记忆”的功能。
+    \begin{figure}
+        \includegraphics[width=0.6\linewidth]{../lib/RNN.jpeg}
+        \caption{RNN 示意图}
+        \label{RNN}
+    \end{figure}
 \end{frame}
-\begin{frame}
-    \frametitle{实现 LSTM}
+\begin{frame}[fragile]
+    \frametitle{实现 RNN}
+    \begin{columns}
+        \column{0.6\linewidth}
+        \begin{minted}{python}
+class RNN(nn.Module):
+    def __init__(self):
+        super(RNN, self).__init__()
+        self.rnn = nn.RNN(
+            input_size=48,
+            hidden_size=100,
+            batch_first=True,
+        )
+        self.fc = nn.Sequential(
+            nn.Linear(100, len(encode)),
+            nn.ReLU(),
+            nn.Softmax(dim=1),
+        )
+
+    def forward(self, x):
+        out, _ = self.rnn(x)
+        return self.fc(out[:, -1, :])
+        \end{minted}
+        \column{0.3\linewidth}
+        \begin{table}
+            \caption{RNN 结果}
+            \begin{tabular}{ll}
+                precision & 0.4516 \\
+                recall    & 0.4606 \\
+                f1        & 0.4541 \\
+                \(R^2\)   & 0.4176 \\
+            \end{tabular}
+            \label{RNNres}
+        \end{table}
+    \end{columns}
 \end{frame}
 \begin{frame}
     \frametitle{其他神经网络}
+    \begin{itemize}
+        \item CNN 的扩展：ResNet……
+        \item RNN 的扩展：LSTM……
+        \item GAN 生成对抗网络
+        \item RL 强化学习
+        \item Transformer
+    \end{itemize}
 \end{frame}
 \subsection{经典机器学习算法}
 \subsubsection{从logit模型开始}
@@ -576,7 +619,7 @@ KNN.fit(Xtrain, Ytrain)
     \frametitle{结果对比}
     \centering
     \begin{figure}
-        \includegraphics[width=0.5\linewidth]{/Users/dcy/code/ernest/static/ox-hugo/529497edec8df5a4871a4e92910dc24d9e9f45dc.png}
+        \includegraphics[width=0.5\linewidth]{../lib/output.png}
         \caption{机器学习效果对比图}
         \label{contrast}
     \end{figure}
