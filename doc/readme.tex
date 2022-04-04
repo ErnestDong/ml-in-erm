@@ -1,4 +1,4 @@
-\documentclass{ctexbeamer}
+\documentclass[mathserif,envcountsect,fontset=mac]{ctexbeamer}
 \usepackage[backend = biber, style = gb7714-2015, url=false,gbtitlelink=true]{biblatex}
 \addbibresource{ref.bib}
 \usepackage{xeCJK}
@@ -23,6 +23,7 @@
 \setbeamertemplate{bibliography entry title}{}
 \setbeamertemplate{bibliography entry location}{}
 \setbeamertemplate{bibliography entry note}{}
+\setbeamertemplate{caption}[numbered]
 \begin{document}
 
 \AtBeginSection[]
@@ -58,6 +59,10 @@
         \href{https://zh.wikipedia.org/wiki/\%E5\%AD\%A6\%E4\%B9\%A0}{维基百科}上说学习是获得新的理解、知识、行为、技能、价值观、态度和偏好的过程。
 
         在计算技术快速发展的今天，让机器去利用算法和算力去“学习”、推理、决策，就是机器学习。
+
+        \begin{definition}
+            机器学习是一门人工智能的科学，该领域的主要研究对象是人工智能，特别是如何在经验学习中改善具体算法的性能。
+        \end{definition}
     \end{columns}
 \end{frame}
 \subsection{机器学习的分类}
@@ -136,12 +141,13 @@ Xtrain, Xtest, Ytrain, Ytest = train_test_split(
             Negative & TN   & FN    \\
         \end{tabular}
     \end{center}
-    准不准的定义有这么几种：
-    \begin{eqnarray}
-        precision & = & TP / (TP + FP) \\
-        recall & = & TP / (TP + FN) \nonumber\\
-        F1 & = & \frac{precision\cdot recall}{precision+recall}\nonumber
-    \end{eqnarray}
+    \begin{definition}{精确率、召回率、F1}
+        \begin{eqnarray}
+            precision & = & TP / (TP + FP) \nonumber\\
+            recall & = & TP / (TP + FN) \nonumber\\
+            F1 & = & \frac{precision\cdot recall}{precision+recall}\nonumber
+        \end{eqnarray}
+    \end{definition}
     分别为 预测阳性中真实为正的概率、样本中的正例有多少被预测正确、以及二者的调和平均。
 \end{frame}
 
@@ -168,17 +174,19 @@ def get_score(Xtest, Ytrue, model):
 \end{frame}
 \begin{frame}
     \frametitle{完全随机的情况}
-    如果我们训练的分类器完全无效，那么结果是
-    \begin{center}
+    如果我们训练的分类器完全无效，那么结果如表\ref{random}所示。
+    \begin{table}
+        \caption{随机的情况}
         \begin{tabular}{ll}
             precision & 0.2364 \\
             recall    & 0.1254 \\
             f1        & 0.1544 \\
             \(R^2\)   & 0.0089 \\
         \end{tabular}
-    \end{center}
+        \label{random}
+    \end{table}
 \end{frame}
-\subsection{神经网络}
+\subsection{深度学习（神经网络）}
 \subsubsection{多层感知机}
 \begin{frame}
     \frametitle{Why Neural Networks can learn almost anything\footnote{\href{https://www.youtube.com/watch?v=0QczhVg5HaI}{youtube视频}}}
@@ -198,6 +206,7 @@ def get_score(Xtest, Ytrue, model):
         \begin{figure}
             \centering
             \includegraphics[width=\linewidth]{../lib/lr.png}
+            \label{learningrates}
             \caption{不同学习率的影响}
         \end{figure}
         \column{0.5\linewidth}
@@ -269,7 +278,7 @@ list(model.parameters())
         \column{0.5\linewidth}
         \begin{figure}
             \includegraphics[width=\linewidth]{../lib/neuron.png}
-            \caption{生物神经的动作电位}            
+            \caption{生物神经的动作电位}
         \end{figure}
 
         \column{0.5\linewidth}
@@ -290,7 +299,7 @@ list(model.parameters())
     一层神经元的输出，作为另一层神经网络的输入，就形成了一层神经网络。多层神经网络通过损失函数和优化器迭代训练，就形成了一个简单的感知机。
 
     \begin{columns}
-        \column{0.7\linewidth}
+        \column{0.5\linewidth}
         \tiny\begin{minted}{python}
 from torch import nn
 import torch
@@ -314,21 +323,83 @@ for t in range(10000):
 Xtest_nn = torch.tensor(Xtest.values, dtype=torch.float32)
 prediction = pd.DataFrame(net(Xtest_nn).detach().numpy())           
         \end{minted}
-        \column{0.3\linewidth}
-        \begin{tabular}{ll}
-            precision & 0.2739  \\
-            recall    & 0.3386  \\
-            f1        & 0.2763  \\
-            \(R^2\)   & -0.059 \\
-        \end{tabular}
+        \column{0.4\linewidth}
+        \begin{table}
+            \caption{BP 神经网络结果}
+            \begin{tabular}{ll}
+                precision & 0.3035 \\
+                recall    & 0.3267 \\
+                f1        & 0.2913 \\
+                \(R^2\)   & 0.0463 \\
+            \end{tabular}
+            \label{BP}
+        \end{table}
     \end{columns}
 \end{frame}
 \subsubsection{CNN}
 \begin{frame}
     \frametitle{卷积}
+    \begin{definition}{卷积}
+        \begin{equation}
+            (f*g)(t)=\int_{\mathbb{R}^n}f(\tau)g(t-\tau)\mathrm{d}\tau
+        \end{equation}
+    \end{definition}
+    \begin{columns}
+        \column{0.4\linewidth}
+        卷积神经网络最早应用在图像识别领域，利用“做卷积”扫描图像上的 (R,G,B) 元组得到像素点附近的一层特征。
+
+        当然这样的特征可能会导致过拟合，扫描的结果会经过“pooling”的过程减少参数和计算量，防止过拟合，提高模型泛化能力。
+
+        最后通过一层全连接层将CNN的结果输出出来。
+        \column{0.5\linewidth}
+        \begin{figure}
+            \includegraphics[width=\linewidth]{../lib/CNN.jpeg}
+            \caption{卷积}
+            \label{CNN}
+        \end{figure}
+    \end{columns}
+
 \end{frame}
-\begin{frame}
+\begin{frame}[fragile]
     \frametitle{实现 CNN}
+    \begin{columns}
+        \column{0.6\linewidth}
+        \begin{minted}{python}
+class CNN(nn.Module):
+    def __init__(self) -> None:
+        super(CNN, self).__init__()
+        self.conv = nn.Sequential(
+            nn.Conv1d(48, 20, 3,padding=2),
+            nn.Tanh(),
+            nn.AvgPool1d(3),
+        )
+        self.fc = nn.Sequential(
+            nn.Linear(20, len(encode)),
+            nn.ReLU(),
+            nn.Softmax(dim=1),
+        )
+
+    def forward(self, x):
+        out = self.conv(x).view(out.size(0), -1)
+        return self.fc(out)
+        \end{minted}
+        \column{0.3\linewidth}
+        \begin{minted}{python}
+net = CNN()
+optimizer = torch.optim.Adamax(net.parameters(),lr=0.0025)
+loss_func = torch.nn.L1Loss()
+        \end{minted}
+        \begin{table}
+            \caption{CNN 结果}
+            \begin{tabular}{ll}
+                precision & 0.4027 \\
+                recall    & 0.4350 \\
+                f1        & 0.4140 \\
+                \(R^2\)   & 0.4039 \\
+            \end{tabular}
+            \label{CNNres}
+        \end{table}
+    \end{columns}
 \end{frame}
 \subsubsection{RNN}
 \begin{frame}
@@ -354,14 +425,16 @@ logit.fit(Xtrain, Ytrain)
 logit.predict(Xtest)
     \end{minted}
 
-    \begin{center}
+    \begin{table}
+        \caption{logit 回归}
         \begin{tabular}{ll}
             precision & 0.1815  \\
             recall    & 0.2440  \\
             f1        & 0.1547  \\
             \(R^2\)   & -0.0177 \\
         \end{tabular}
-    \end{center}
+        \label{logit}
+    \end{table}
 \end{frame}
 \subsubsection{基于树的算法}
 \begin{frame}[fragile]
@@ -392,7 +465,6 @@ logit.predict(Xtest)
             \caption{随机森林}
         \end{figure}
     \end{center}
-
 \end{frame}
 \begin{frame}
     \frametitle{集成学习}
@@ -419,14 +491,16 @@ rf.fit(Xtrain, Ytrain)
 gb = GradientBoostingClassifier(max_depth=3, random_state=42)
 gb.fit(Xtrain, Ytrain)
     \end{minted}
-    \begin{center}
+    \begin{table}
+        \caption{基于树的算法结果}
         \begin{tabular}{l|cccc}
             model & precision & recall & f1     & \(R^2\) \\ \hline
             决策树   & 0.3498    & 0.3799 & 0.3529 & 0.3632  \\
             随机森林  & 0.3960    & 0.4251 & 0.3835 & 0.3995  \\
             梯度提升树 & 0.5305    & 0.5256 & 0.5095 & 0.5421  \\
         \end{tabular}
-    \end{center}
+        \label{trees}
+    \end{table}
 \end{frame}
 \subsubsection{基于距离的算法}
 \begin{frame}
@@ -439,6 +513,7 @@ gb.fit(Xtrain, Ytrain)
         \begin{figure}
             \includegraphics[width=0.6\linewidth]{../lib/SVM.jpeg}
             \caption{Support Vector Machine}
+            \label{SVM}
         \end{figure}
     \end{center}
 \end{frame}
@@ -464,24 +539,57 @@ svm.fit(Xtrain, Ytrain)
 KNN = KNeighborsClassifier(n_neighbors=3)
 KNN.fit(Xtrain, Ytrain)
     \end{minted}
-    \begin{center}
+    \begin{table}
+        \caption{基于距离的算法结果}
         \begin{tabular}{l|cccc}
             model & precision & recall & f1     & \(R^2\) \\ \hline
             SVM   & 0.4137    & 0.4094 & 0.3517 & 0.3431  \\
             KNN   & 0.3625    & 0.3523 & 0.3420 & 0.2987  \\
         \end{tabular}
-    \end{center}
+        \label{distances}
+    \end{table}
 \end{frame}
 \subsection{对比}
 \begin{frame}
     \frametitle{结果对比}
+    \centering
+    \begin{table}
+        \caption{机器学习效果对比表}
+        \label{result}
+        \begin{tabular}{l|cccc}
+            model    & precision & recall & f1     & \(R^2\) \\\hline
+            random   & 0.2364    & 0.1255 & 0.1544 & 0.0089  \\
+            logit    & 0.1815    & 0.2441 & 0.1547 & -0.0178 \\
+            tree     & 0.3499    & 0.3799 & 0.3529 & 0.3632  \\
+            bagging  & 0.3960    & 0.4252 & 0.3835 & 0.3996  \\
+            boosting & 0.5305    & 0.5256 & 0.5095 & 0.5421  \\
+            svm      & 0.4137    & 0.4094 & 0.3517 & 0.3431  \\
+            KNN      & 0.3625    & 0.3524 & 0.342  & 0.2987  \\
+            BP       & 0.3035    & 0.3267 & 0.2913 & 0.0463  \\
+            CNN      & 0.4027    & 0.4350 & 0.4140 & 0.4039  \\
+            RNN      & 0.4516    & 0.4606 & 0.4541 & 0.4176  \\
+        \end{tabular}
+    \end{table}
+
+\end{frame}
+\begin{frame}
+    \frametitle{结果对比}
+    \centering
+    \begin{figure}
+        \includegraphics[width=0.5\linewidth]{/Users/dcy/code/ernest/static/ox-hugo/529497edec8df5a4871a4e92910dc24d9e9f45dc.png}
+        \caption{机器学习效果对比图}
+        \label{contrast}
+    \end{figure}
 \end{frame}
 \section{机器学习在企业风险管理中的应用}
 
 \begin{frame}
     \frametitle{机器学习在企业风险管理中的应用}
     \Textcite{mai2019deep} 利用 CNN 预测企业破产，在处理文本数据时利用 word embedding 量化，AUC 曲线如图
-    \includegraphics[width=\linewidth]{../lib/mlinerm.jpg}
+    \begin{figure}
+        \includegraphics[width=\linewidth]{../lib/mlinerm.jpg}
+        \caption{AUC曲线}
+    \end{figure}
 \end{frame}
 \begin{frame}
     \frametitle{机器学习在企业风险管理中的应用}
@@ -497,156 +605,6 @@ KNN.fit(Xtrain, Ytrain)
 
     当前机器学习最火热的两个应用方向是计算机视觉 CV 和自然语言处理 NLP ，亦有一些文献利用自然语言处理分析文本数据做研究。
 \end{frame}
-
-% 				这是我用两层神经网络的代码
-% 				\begin{verbatim}
-
-% result["bp neural network"] = get_score(Xtest, Ytest, lambda _: Ypredict)
-% result["bp neural network"]
-% \end{verbatim}
-% 			\end{block}
-% 		\end{block}
-
-% 		\begin{block}{CNN}
-% 			所谓卷积神经网络，就是用卷积核扫描，类似“锐化”，是一种比较经典的计算机视觉算法。图片之间的像素是有关系的，刚刚的神经网络显然没有考虑到连续像素的关联性，CNN 通过做卷积将关系呈现出来。
-% 			\begin{center}
-% 				\includegraphics[width=.9\linewidth]{/Users/dcy/.emacs.d/.local/cache/org-persist/da/21d33e-ccf0-49f3-8b8f-bd424c5d6978-011bffe9337373ece605a2705d648ce1.jpg}
-% 			\end{center}
-
-% 			\href{https://zh.m.wikipedia.org/zh-hans/\%E5\%8D\%B7\%E7\%A7\%AF}{卷积}有其数学定义 \((f*g)(n) = \int_{-\infty}^{\infty}f(\tau)g(n-\tau)\mathrm{d}\tau\)，简单地理解就是两个函数 \texttt{f} 和 \texttt{g} ，先对g函数进行翻转，相当于在数轴上把 \texttt{g} 函数从右边“卷”到左边去。然后再把 \texttt{g} 函数平移到 \texttt{n} ，在这个位置对两个函数的对应点相乘，然后相加（“积”）。
-
-% 			卷积神经网络先用卷积层扫描出特征，然后利用“池化”增强稳健性防止过拟合，最后一个全连接层处理输出。图像可以由二维的位置和第三维（颜色 RGB ）确定，在 \texttt{pytorch} 中常用 \texttt{Conv2d} 。而我们的数据则是一条条的，望文生义应该用 \texttt{Conv1d} （其实会用在自然语言处理中，但 RNN 应用更多）。
-
-% 			从这里开始利用 CPU 训练比较慢，有 NVIDIA GPU 的同学可以尝试在 GPU 上训练
-% 			\begin{verbatim}
-% class CNN(nn.Module):
-%     def __init__(self) -> None:
-%         super(CNN, self).__init__()
-%         self.conv = nn.Sequential(
-%             nn.Conv1d(Xtrain_nn.shape[1], 20, 3, padding=3),
-%             nn.Tanh(),
-%             nn.AvgPool1d(2),
-%         )
-%         self.fc = nn.Sequential(
-%             nn.Linear(40, len(encode)),
-%             nn.ReLU(),
-%             nn.Softmax(dim=1),
-%         )
-
-%     def forward(self, x):
-%         out = self.conv(x)
-%         out = out.view(out.size(0), -1)
-%         out = self.fc(out)
-%         return out
-% Xtrain_cnn = Xtrain_nn.unsqueeze(2)
-% Xtest_cnn = Xtest_nn.unsqueeze(2)
-% net = CNN()
-% optimizer = torch.optim.Adamax(net.parameters())
-% loss_func = torch.nn.L1Loss()
-% epochnum = 10000
-% for epoch in range(epochnum):
-%     prediction = net(Xtrain_cnn)
-%     loss = loss_func(Ytrain_nn, prediction)
-%     optimizer.zero_grad()
-%     loss.backward()
-%     optimizer.step()
-%     if epoch % (epochnum / 10) == 0:
-%         print("epoch:", epoch, "loss:", loss.item())
-% prediction = pd.DataFrame(net(Xtest_cnn).detach().numpy())
-% Ypredict = prediction.idxmax(axis=1).map(lambda x: encode[x])
-% result["CNN"] = get_score(Xtest, Ytest, lambda _: Ypredict)
-% result["CNN"]
-% \end{verbatim}
-
-% 			增加网络层数可能会导致梯度离散和梯度爆炸的情况，反而效果不好。残差网络 ResNet 利用在网络间加入 shortcut ，使更深层次的训练结果至少不差于更浅层次（如果更差就直接走 shortcut ）
-% 		\end{block}
-% 		\begin{block}{RNN}
-% 			\begin{center}
-% 				\includegraphics[width=.9\linewidth]{/Users/dcy/.emacs.d/.local/cache/org-persist/e7/a5e28e-ecf0-4f90-b7d8-77777a921d3d-0ae5bdb1bc5eed3623ce9cfa0b704d21.jpg}
-% 			\end{center}
-% 			循环神经网络：常用在 NLP 中并大放异彩，也会应用在股价等时间序列中。他会短期地“记住”参数，就如同我说这句话的时候你短期地记住了上一句话，会更新“自我”而非直接向前传递，在该层中“循环”。即对于隐藏层而言，\(h_t = f_w(h_{t-1}, x_t)\) 。随着输入的更新，有一个短暂的 memory ，记住刚刚的参数。
-% 			\begin{verbatim}
-
-% class LSTM(nn.Module):
-%     def __init__(self):
-%         super(LSTM, self).__init__()
-%         self.lstm = nn.LSTM(
-%             input_size=1,
-%             hidden_size=32,
-%             num_layers=1,
-%             batch_first=True,
-%             bidirectional=True,
-%         )
-%         self.fc = nn.Linear(32* 2, num_classes)
-
-%     def forward(self, x):
-%         # x, _ = x
-%         out, _ = self.lstm(x)
-%         out = self.fc(out[:, -1, :])
-%         return out
-
-
-% input_size = 1
-% hidden_size = 32
-% num_layers = 1
-% num_classes = 7
-% net = LSTM()
-% optimizer = torch.optim.Adamax(net.parameters())
-% loss_func = nn.MSELoss()
-% epochnum = 3000
-% for epoch in range(epochnum):
-%     out = net(Xtrain_nn.unsqueeze(2))
-%     loss = loss_func(out, Ytrain_nn)
-%     optimizer.zero_grad()
-%     loss.backward()
-%     optimizer.step()
-%     if epoch % (epochnum / 10) == 0:
-%         print("epoch:", epoch, "loss:", loss.item())
-
-% prediction = pd.DataFrame(net(Xtest_nn.unsqueeze(2)).detach().numpy())
-% Ypredict = prediction.idxmax(axis=1).map(lambda x: encode[x])
-% result["RNN"] = get_score(Xtest, Ytest, lambda _: Ypredict)
-% result["RNN"]
-% \end{verbatim}
-
-% 			但是 RNN 的的梯度非常容易“爆炸”（特别大）或“离散”（特别小以致于不更新），预测可能会出错。
-% 			针对此，LSTM （Long Short Term Memory）模型设计了三个“门”：输入门 \texttt{i} ，遗忘门 \texttt{f} ，输出门 \texttt{o} ，有一篇非常好的\href{https://colah.github.io/posts/2015-08-Understanding-LSTMs/}{blog}详细描述了这些门是如何工作的，简而言之他加入了长期记忆的部分。
-% 		\end{block}
-
-% 		\begin{block}{GAN \& RL}
-% 			\begin{itemize}
-% 				\item 生成对抗网络：随机取样作为输入，其输出结果需要尽量模仿训练集中的真实样本，使判别网络无法判断生成网络的输出结果是否真实
-% 				\item 强化学习：博弈论……
-% 			\end{itemize}
-% 			\begin{quote}
-% 				强化学习（RL）是机器学习的一个领域，涉及软件代理如何在环境中采取行动以最大化一些累积奖励的概念。该问题由于其一般性，在许多其他学科中得到研究，如博弈论，控制理论，运筹学，信息论，基于仿真的优化，多智能体系统，群智能，统计和遗传算法。。在运筹学和控制文献中，强化学习被称为近似动态规划或神经动态规划。--Wikipedia
-% 			\end{quote}
-% 		\end{block}
-% 	\end{block}
-
-% 	\begin{block}{对比}
-% 		\begin{verbatim}
-% feature = ["precision", "recall", "f1", "\(R^2\)"]
-% [["model"]+feature]+list([i[0]]+ [round(j,4) for j in i[1].values()] for i in result.items())
-% \end{verbatim}
-
-% 		\begin{verbatim}
-% N = len(feature)
-% angles = np.linspace(0, 2 * np.pi, N, endpoint=False)
-% angles = np.concatenate((angles, [angles[0]]))
-% fig = plt.figure()
-% ax = fig.add_subplot(111, polar=True)
-% for model in result:
-%     values = [i for i in result[model].values()] + [result[model]["precision"]]
-%     ax.plot(angles, values, label=model)
-%     ax.fill(angles, values, alpha=0.1)
-% ax.set_thetagrids(angles[:-1] * 180 / np.pi, feature)
-% ax.grid(True)
-% plt.legend(bbox_to_anchor=(1.2, -0.1), ncol=3)
-% plt.show()
-% \end{verbatim}
-% 	\end{block}
-% \end{frame}
 \section{参考文献}
 \begin{frame}{参考文献}
     \printbibliography
