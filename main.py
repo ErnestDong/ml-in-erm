@@ -1,25 +1,11 @@
-#%%
-import random
-
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
-import seaborn as sns
-import torch
-from scipy.stats import pearsonr
-from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import f1_score, precision_score, recall_score
-from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
-from sklearn.tree import DecisionTreeClassifier
-from torch import nn
 
 # df = pd.read_csv("./corporate_rating.csv", encoding="utf-8")
 df = pd.read_csv("/Users/dcy/Code/erm/corporate_rating.csv", encoding="utf-8")
 df.info()
-#%%
+
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 sns.set(
     style="white",
@@ -27,8 +13,9 @@ sns.set(
     rc={"text.usetex": True},
 )
 df["Rating"].value_counts().plot(kind="bar")
-#%%
 
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import f1_score, recall_score, precision_score
 RANDOM_STATE = 42
 Y = df["Rating"]
 Y = Y.replace({"CCC": "C", "CC": "C"})
@@ -37,12 +24,12 @@ dummies = ["Rating Agency Name", "Sector", "Date"]
 X = df[[i for i in df.columns if df[i].dtype != "object"]]
 for dummy in dummies:
     X = pd.concat([X, pd.get_dummies(df[dummy], drop_first=True, prefix=dummy)], axis=1)
-Xtrain, Xtest, Ytrain, Ytest = train_test_split(
-    X, Y, test_size=0.25, random_state=RANDOM_STATE
-)
+Xtrain, Xtest, Ytrain, Ytest = train_test_split(X, Y, test_size=0.25, random_state=RANDOM_STATE)
 result = {}
 X.columns
-#%%
+
+from scipy.stats import pearsonr
+
 
 def get_score(Xtest, Ytrue, model):
     Ypred = model(Xtest)
@@ -58,6 +45,9 @@ def get_score(Xtest, Ytrue, model):
     }
 
 
+import random
+import numpy as np
+np.random.seed(RANDOM_STATE)
 random.seed(RANDOM_STATE)
 ratings = Y.unique()
 tmp = {}
@@ -71,73 +61,73 @@ for i in range(100):
         tmp[j] += monte[j]
 result["random"] = {i: tmp[i] / 100 for i in tmp}
 result["random"]
-#%%
 
+from sklearn.linear_model import LogisticRegression
 
-logit = LogisticRegression(
-    multi_class="multinomial", solver="saga", random_state=RANDOM_STATE
-)
+logit = LogisticRegression(multi_class="multinomial", solver="saga", random_state=RANDOM_STATE)
 logit.fit(Xtrain, Ytrain)
 result["logit"] = get_score(Xtest, Ytest, logit.predict)
 result["logit"]
 
-#%%
+from sklearn.tree import DecisionTreeClassifier
 
 dt = DecisionTreeClassifier(max_depth=3, random_state=RANDOM_STATE)
 dt.fit(Xtrain, Ytrain)
 result["decision tree"] = get_score(Xtest, Ytest, dt.predict)
 result["decision tree"]
-#%%
 
+from sklearn.ensemble import RandomForestClassifier
 
 rf = RandomForestClassifier(n_estimators=100, max_depth=4, random_state=RANDOM_STATE)
 rf.fit(Xtrain, Ytrain)
 result["random forest"] = get_score(Xtest, Ytest, rf.predict)
 result["random forest"]
 
-#%%
+from sklearn.ensemble import GradientBoostingClassifier
 
 gb = GradientBoostingClassifier(random_state=RANDOM_STATE)
+
 gb.fit(Xtrain, Ytrain)
 result["gradient boosting"] = get_score(Xtest, Ytest, gb.predict)
 result["gradient boosting"]
-#%%
 
+from sklearn.svm import SVC
 
 svm = SVC(kernel="rbf", gamma="auto", random_state=RANDOM_STATE)
 svm.fit(Xtrain, Ytrain)
-result["svm"] = get_score(Xtest, Ytest, svm.predict)
-result["svm"]
+result["SVM"] = get_score(Xtest, Ytest, svm.predict)
+result["SVM"]
 
-#%%
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
 
 KNN = KNeighborsClassifier(n_neighbors=3)
 KNN.fit(Xtrain, Ytrain)
 result["KNN"] = get_score(Xtest, Ytest, KNN.predict)
 result["KNN"]
-#%%
 
-torch.manual_seed(42)
-x = torch.rand([500, 1])  # X 是一个 tensor ，可以把他想象成 500x1 的向量
-y_true = 3 * x + 8
-learning_rate = 0.05  # learning rate 是每次梯度下降的“步长”
-w = torch.rand([1, 1], requires_grad=True)  # w 和 b 我们要 pytorch 自动求导
+import torch
+x = torch.rand([500,1]) # X 是一个 tensor ，可以把他想象成 500x1 的向量
+y_true = 3*x+8
+learning_rate = 0.05 # learning rate 是每次梯度下降的“步长”
+w = torch.rand([1,1], requires_grad=True) # w 和 b 我们要 pytorch 自动求导
 b = torch.tensor(0, requires_grad=True, dtype=torch.float32)
 for i in range(500):
-    y_pred = torch.matmul(x, w) + b  # 预测是多少
-    loss = (y_true - y_pred).pow(2).mean()  # 损失
-    if w.grad is not None:  # 把上一次的梯度清零
+    y_pred = torch.matmul(x,w)+b # 预测是多少
+    loss = (y_true-y_pred).pow(2).mean() # 损失
+    if w.grad is not None: # 把上一次的梯度清零
         w.grad.data.zero_()
     if b.grad is not None:
         b.grad.data.zero_()
-    loss.backward()  # 误差反向传播，得到 w 和 b 的梯度
-    w.data = w.data - w.grad * learning_rate  # 梯度下降找到新的 w 和 b
-    b.data = b.data - b.grad * learning_rate
+    loss.backward() # 误差反向传播，得到 w 和 b 的梯度
+    w.data = w.data - w.grad*learning_rate # 梯度下降找到新的 w 和 b
+    b.data = b.data - b.grad*learning_rate
     if i % 50 == 0:
         print(w.item(), b.item(), loss.item())
-#%%
 
-
+from torch import nn
+import torch
+torch.manual_seed(42)
 Ytrain_nn = pd.get_dummies(Ytrain)
 encode = Ytrain_nn.columns
 Ytrain_nn = torch.tensor(Ytrain_nn.values, dtype=torch.float32)
@@ -164,18 +154,17 @@ prediction = pd.DataFrame(net(Xtest_nn).detach().numpy())
 Ypredict = prediction.idxmax(axis=1).map(lambda x: encode[x])
 result["bp neural network"] = get_score(Xtest, Ytest, lambda _: Ypredict)
 result["bp neural network"]
-#%%
 
 class CNN(nn.Module):
     def __init__(self) -> None:
         super(CNN, self).__init__()
         self.conv = nn.Sequential(
-            nn.Conv1d(Xtrain_nn.shape[1], 20, 3, padding=3),
+            nn.Conv1d(Xtrain_nn.shape[1], 20, 3,padding=2),
             nn.Tanh(),
-            nn.AvgPool1d(2),
+            nn.AvgPool1d(3),
         )
         self.fc = nn.Sequential(
-            nn.Linear(40, len(encode)),
+            nn.Linear(20, len(encode)),
             nn.ReLU(),
             nn.Softmax(dim=1),
         )
@@ -187,56 +176,49 @@ class CNN(nn.Module):
         return out
 
 
-Xtrain_cnn = Xtrain_nn.unsqueeze(2)
-Xtest_cnn = Xtest_nn.unsqueeze(2)
 net = CNN()
-optimizer = torch.optim.Adamax(net.parameters())
+optimizer = torch.optim.Adamax(net.parameters(),lr=0.0025)
 loss_func = torch.nn.L1Loss()
 epochnum = 10000
 for epoch in range(epochnum):
-    prediction = net(Xtrain_cnn)
+    prediction = net(Xtrain_nn.unsqueeze(2))
     loss = loss_func(Ytrain_nn, prediction)
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
     if epoch % (epochnum / 10) == 0:
         print("epoch:", epoch, "loss:", loss.item())
-prediction = pd.DataFrame(net(Xtest_cnn).detach().numpy())
+prediction = pd.DataFrame(net(Xtest_nn.unsqueeze(2)).detach().numpy())
 Ypredict = prediction.idxmax(axis=1).map(lambda x: encode[x])
 result["CNN"] = get_score(Xtest, Ytest, lambda _: Ypredict)
 result["CNN"]
 
-#%%
-
-class LSTM(nn.Module):
+class RNN(nn.Module):
     def __init__(self):
-        super(LSTM, self).__init__()
-        self.lstm = nn.LSTM(
-            input_size=1,
-            hidden_size=32,
-            num_layers=1,
+        super(RNN, self).__init__()
+        self.rnn = nn.RNN(
+            input_size=48,
+            hidden_size=100,
             batch_first=True,
-            bidirectional=True,
+            # bidirectional=True,
         )
-        self.fc = nn.Linear(32 * 2, num_classes)
+        self.fc = nn.Sequential(
+            nn.Linear(100, len(encode)),
+            nn.ReLU(),
+            nn.Softmax(dim=1),
+        )
 
     def forward(self, x):
-        # x, _ = x
-        out, _ = self.lstm(x)
+        out, _ = self.rnn(x)
         out = self.fc(out[:, -1, :])
         return out
 
-
-input_size = 1
-hidden_size = 32
-num_layers = 1
-num_classes = 7
-net = LSTM()
+net = RNN()
 optimizer = torch.optim.Adamax(net.parameters())
 loss_func = nn.MSELoss()
 epochnum = 3000
 for epoch in range(epochnum):
-    out = net(Xtrain_nn.unsqueeze(2))
+    out = net(Xtrain_nn.unsqueeze(1))
     loss = loss_func(out, Ytrain_nn)
     optimizer.zero_grad()
     loss.backward()
@@ -244,16 +226,13 @@ for epoch in range(epochnum):
     if epoch % (epochnum / 10) == 0:
         print("epoch:", epoch, "loss:", loss.item())
 
-prediction = pd.DataFrame(net(Xtest_nn.unsqueeze(2)).detach().numpy())
+prediction = pd.DataFrame(net(Xtest_nn.unsqueeze(1)).detach().numpy())
 Ypredict = prediction.idxmax(axis=1).map(lambda x: encode[x])
 result["RNN"] = get_score(Xtest, Ytest, lambda _: Ypredict)
 result["RNN"]
-#%%
 
 feature = ["precision", "recall", "f1", "\(R^2\)"]
-[["model"] + feature] + list(
-    [i[0]] + [round(j, 4) for j in i[1].values()] for i in result.items()
-)
+[["model"]+feature]+list([i[0]]+ [round(j,4) for j in i[1].values()] for i in result.items())
 
 N = len(feature)
 angles = np.linspace(0, 2 * np.pi, N, endpoint=False)
