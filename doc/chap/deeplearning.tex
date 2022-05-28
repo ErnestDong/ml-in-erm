@@ -223,21 +223,36 @@ prediction = pd.DataFrame(net(Xtest_nn).detach().numpy())
             (f*g)(t)=\int_{\mathbb{R}^n}f(\tau)g(t-\tau)\mathrm{d}\tau
         \end{equation}
     \end{definition}
-    \begin{columns}
-        \column{0.4\linewidth}
-        卷积神经网络最早应用在图像识别领域，利用“做卷积”扫描图像上的 (R,G,B) 元组得到像素点附近的一层特征。
 
-        当然这样的特征可能会导致过拟合，扫描的结果会经过“pooling”的过程减少参数和计算量，防止过拟合，提高模型泛化能力。
-
-        最后通过一层全连接层将CNN的结果输出出来。
-        \column{0.5\linewidth}
         \begin{figure}
-            \includegraphics[width=\linewidth]{../lib/CNN.jpeg}
+            \includegraphics[width=0.5\linewidth]{../lib/CNN.jpeg}
             \caption{卷积}
             \label{CNN}
         \end{figure}
-    \end{columns}
 
+\end{frame}
+\begin{frame}
+    \frametitle{卷积}
+    卷积神经网络最早应用在图像识别领域，利用“做卷积”扫描图像上的 (R,G,B) 元组得到像素点附近的一层特征。
+
+    \begin{tabular}{cccc}
+        \includegraphics[width=0.2\linewidth]{../lib/aniya.jpeg} & \includegraphics[width=0.2\linewidth]{../lib/blur.jpeg} & \includegraphics[width=0.2\linewidth]{../lib/sharpen.jpeg} & \includegraphics[width=0.2\linewidth]{../lib/dark.jpeg} \\
+        original image                                           & $\begin{pmatrix}
+                                                                            1 & 1 & 1 \\
+                                                                            1 & 0 & 1 \\
+                                                                            1 & 1 & 1
+                                                                        \end{pmatrix}$                                        & $\begin{pmatrix}
+                                                                                                                                     0  & -1 & 0  \\
+                                                                                                                                     -1 & 5  & -1 \\
+                                                                                                                                     0  & -1  & 0
+                                                                                                                                 \end{pmatrix}$                                           & $\begin{pmatrix}
+                                                                                                                                                                                                 -1 & 0 & 1 \\
+                                                                                                                                                                                                 -1 & 0 & 1 \\
+                                                                                                                                                                                                 -1 & 0 & 1
+                                                                                                                                                                                             \end{pmatrix}$
+    \end{tabular}
+        扫描出来细致的的特征可能会导致过拟合，扫描的结果会经过“pooling”的过程减少参数和计算量，防止过拟合，提高模型泛化能力。
+        最后通过一层全连接层将CNN的结果输出出来。
 \end{frame}
 \begin{frame}[fragile]
     \frametitle{实现 CNN}
