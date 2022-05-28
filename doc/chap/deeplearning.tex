@@ -98,14 +98,7 @@
     \frametitle{梯度下降与反向传播}
     \begin{columns}
         \column{0.5\linewidth}
-        \begin{figure}
-            \centering
-            \includegraphics[width=\linewidth]{../lib/lr.png}
-            \label{learningrates}
-            \caption{不同学习率的影响}
-        \end{figure}
-        \column{0.5\linewidth}
-        再进一步了解前，我们先了解一下机器是怎么样优化参数的。
+        在进一步了解前，我们先了解一下机器是怎么样优化参数的。
         先看最简单的线性的情况。
         假设有一个我们不知道 $w,b$ 的线性的 $y=wx+b$ ，仅知道若干个 $(x,y)$。
 
@@ -114,6 +107,24 @@
         令 $w=w_0,b=b_0$ ，正向计算得到 $loss(w_0,b_0)$。
         为了最小化它，我们让 $w,b$ 沿着 $loss$ 的梯度走一小步（\textbf{learning rate}），即误差反向传播。
         不断迭代，逼近 $loss(w,b)$ 的最小值，得到估计的 $w^*,b^*$。
+        \column{0.4\linewidth}
+        \only<1>{
+            \begin{eqnarray}
+                loss &=& l(\sigma(wx+b)-y)\nonumber\\
+                \frac{\partial{loss}}{\partial{w}} &=& \frac{\partial{l(\sigma(wx+b)-y)}}{\partial{w}}\nonumber\\
+                &=& l'(\cdot)\sigma'(\cdot)x \nonumber\\
+                \frac{\partial{loss}}{\partial{b}} &=& \frac{\partial{l(\sigma(wx+b)-y)}}{\partial{b}}\nonumber\\
+                &=& l'(\cdot)\sigma'(\cdot) \nonumber
+            \end{eqnarray}
+        }
+        \only<2>{
+            \begin{figure}
+                \centering
+                \includegraphics[width=\linewidth]{../lib/lr.png}
+                \label{learningrates}
+                \caption{不同学习率的影响}
+            \end{figure}
+        }
     \end{columns}
 \end{frame}
 
@@ -224,11 +235,11 @@ prediction = pd.DataFrame(net(Xtest_nn).detach().numpy())
         \end{equation}
     \end{definition}
 
-        \begin{figure}
-            \includegraphics[width=0.5\linewidth]{../lib/CNN.jpeg}
-            \caption{卷积}
-            \label{CNN}
-        \end{figure}
+    \begin{figure}
+        \includegraphics[width=0.5\linewidth]{../lib/CNN.jpeg}
+        \caption{卷积}
+        \label{CNN}
+    \end{figure}
 
 \end{frame}
 \begin{frame}
@@ -244,15 +255,15 @@ prediction = pd.DataFrame(net(Xtest_nn).detach().numpy())
                                                                         \end{pmatrix}$                                        & $\begin{pmatrix}
                                                                                                                                      0  & -1 & 0  \\
                                                                                                                                      -1 & 5  & -1 \\
-                                                                                                                                     0  & -1  & 0
+                                                                                                                                     0  & -1 & 0
                                                                                                                                  \end{pmatrix}$                                           & $\begin{pmatrix}
                                                                                                                                                                                                  -1 & 0 & 1 \\
                                                                                                                                                                                                  -1 & 0 & 1 \\
                                                                                                                                                                                                  -1 & 0 & 1
                                                                                                                                                                                              \end{pmatrix}$
     \end{tabular}
-        扫描出来细致的的特征可能会导致过拟合，扫描的结果会经过“pooling”的过程减少参数和计算量，防止过拟合，提高模型泛化能力。
-        最后通过一层全连接层将CNN的结果输出出来。
+    扫描出来细致的的特征可能会导致过拟合，扫描的结果会经过“pooling”的过程减少参数和计算量，防止过拟合，提高模型泛化能力。
+    最后通过一层全连接层将CNN的结果输出出来。
 \end{frame}
 \begin{frame}[fragile]
     \frametitle{实现 CNN}
