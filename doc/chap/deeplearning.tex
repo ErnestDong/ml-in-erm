@@ -257,9 +257,9 @@ prediction = pd.DataFrame(net(Xtest_nn).detach().numpy())
                                                                                                                                      -1 & 5  & -1 \\
                                                                                                                                      0  & -1 & 0
                                                                                                                                  \end{pmatrix}$                                           & $\begin{pmatrix}
-                                                                                                                                                                                                 -1 & 0 & 1 \\
-                                                                                                                                                                                                 -1 & 0 & 1 \\
-                                                                                                                                                                                                 -1 & 0 & 1
+                                                                                                                                                                                                 0 & 0 & 0 \\
+                                                                                                                                                                                                 0 & 0 & 0 \\
+                                                                                                                                                                                                 0 & 0 & 0
                                                                                                                                                                                              \end{pmatrix}$
     \end{tabular}
     扫描出来细致的的特征可能会导致过拟合，扫描的结果会经过“pooling”的过程减少参数和计算量，防止过拟合，提高模型泛化能力。
