@@ -32,7 +32,7 @@ from torch import nn
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-df = pd.read_csv("../input/corporate-credit-rating/corporate_rating.csv", encoding="utf-8")
+df = pd.read_csv("./corporate_rating.csv", encoding="utf-8")
 df.info()
 
 
