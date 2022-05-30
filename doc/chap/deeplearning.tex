@@ -110,7 +110,7 @@
         \column{0.4\linewidth}
         \only<1>{
             \begin{eqnarray}
-                loss &=& l(\sigma(wx+b)-y)\nonumber\\
+                loss(w,b) &=& l(\sigma(wx+b)-y)\nonumber\\
                 \frac{\partial{loss}}{\partial{w}} &=& \frac{\partial{l(\sigma(wx+b)-y)}}{\partial{w}}\nonumber\\
                 &=& l'(\cdot)\sigma'(\cdot)x \nonumber\\
                 \frac{\partial{loss}}{\partial{b}} &=& \frac{\partial{l(\sigma(wx+b)-y)}}{\partial{b}}\nonumber\\
@@ -257,9 +257,9 @@ prediction = pd.DataFrame(net(Xtest_nn).detach().numpy())
                                                                                                                                      -1 & 5  & -1 \\
                                                                                                                                      0  & -1 & 0
                                                                                                                                  \end{pmatrix}$                                           & $\begin{pmatrix}
-                                                                                                                                                                                                 0 & 0 & 0 \\
-                                                                                                                                                                                                 0 & 0 & 0 \\
-                                                                                                                                                                                                 0 & 0 & 0
+                                                                                                                                                                                                 -1 & 0 & 1 \\
+                                                                                                                                                                                                 -1 & 0 & 1 \\
+                                                                                                                                                                                                 -1 & 0 & 1
                                                                                                                                                                                              \end{pmatrix}$
     \end{tabular}
     扫描出来细致的的特征可能会导致过拟合，扫描的结果会经过“pooling”的过程减少参数和计算量，防止过拟合，提高模型泛化能力。
@@ -354,7 +354,7 @@ class RNN(nn.Module):
     \begin{itemize}
         \item CNN 的扩展：ResNet……
         \item RNN 的扩展：LSTM……
-        \item \textbf{Transformer}：Attention Is All You Need
+        \item \textbf{Transformer}：Attention Is All You Need\parencite{vaswani2017attention}
         \item GAN 生成对抗网络：机器不仅可以回归/分类，还可以创造
         \item Self-Supervised Model：仅需标注少量数据甚至不标注
         \item RL 强化学习：Alpha Go

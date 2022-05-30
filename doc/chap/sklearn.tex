@@ -109,10 +109,12 @@ gb.fit(Xtrain, Ytrain)
     \begin{columns}
         \column{0.5\linewidth}
         KNN 的思想是一个样本归属的分类属于离他最近的 K 个已经打好标签的邻居中占多数的分类，也非常直观。
+        \includegraphics[width=0.9\linewidth]{../lib/KNN.png}
         \column{0.5\linewidth}
         K Means 则是一种聚类算法，不需要打好标签（即所谓“无监督学习”），目的是把样本点归为 K 个群落。
         其思想是假设 K 个重心，样本根据与不同重心的距离归类，进而得到新的重心。
         以此循环往复，直至重心稳定下来。
+        \includegraphics[width=0.9\linewidth]{../lib/kmeans.png}
     \end{columns}
 \end{frame}
 \begin{frame}[fragile]
